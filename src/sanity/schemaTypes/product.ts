@@ -1,103 +1,50 @@
-export default {
-    name: 'product',
-    type: 'document',
-    title: 'Product',
-    fields: [
-      {
-        name: 'name',
-        type: 'string',
-        title: 'Name',
-        validation: (Rule: any) => Rule.required().error('Name is required'),
-      },
-      {
-        name : "slug",
-        type : "slug",
-        title : "Slug",
-        options : {
-          source:"name"
-        }
-      },
-      {
-        name: 'image',
-        type: 'image',
-        title: 'Image',
-        options: {
-          hotspot: true,
-        },
-        description: 'Upload an image of the product.',
-      },
-      {
-        name: 'price',
-        type: 'string',
-        title: 'Price',
-        validation: (Rule: any) => Rule.required().error('Price is required'),
-      },
-      {
-        name: 'description',
-        type: 'text',
-        title: 'Description',
-        validation: (Rule: any) =>
-          Rule.max(150).warning('Keep the description under 150 characters.'),
-      },
-      {
-        name: 'discountPercentage',
-        type: 'number',
-        title: 'Discount Percentage',
-        validation: (Rule: any) =>
-          Rule.min(0).max(100).warning('Discount must be between 0 and 100.'),
-      },
-      {
-        name: 'isFeaturedProduct',
-        type: 'boolean',
-        title: 'Is Featured Product',
-      },
-      {
-        name: 'isLatestProduct',
-        type: 'boolean',
-        title: 'Is Latest Product',
-      },
-      {
-        name: 'isTrendingProduct',
-        type: 'boolean',
-        title: 'Is trending Product',
-      },
-      {
-        name: 'isDiscountProduct',
-        type: 'boolean',
-        title: 'Is Discount Product',
-      },
-      {
-        name: 'topCatergory',
-        type: 'boolean',
-        title: 'Is topcategory Product',
-      },
-      {
-        name: 'top',
-        type: 'boolean',
-        title: 'Is top Product',
-      },
-      {
-        name: 'unique',
-        type: 'boolean',
-        title: 'Is unique Product',
-      },
-      {
-        name: 'stockLevel',
-        type: 'number',
-        title: 'Stock Level',
-        validation: (Rule: any) => Rule.min(0).error('Stock level must be a positive number.'),
-      },
-      {
-        name: 'category',
-        type: 'string',
-        title: 'Category',
-        options: {
-          list: [
-            { title: 'Chair', value: 'Chair' },
-            { title: 'Sofa', value: 'Sofa' },
-          ],
-        },
-        validation: (Rule: any) => Rule.required().error('Category is required'),
-      },
-    ],
-  };
+import { Rule } from "sanity";
+
+const productSchema = {
+  name: "product",
+  type: "document",
+  title: "Product",
+  fields: [
+    {
+      name: "name",
+      type: "string",
+      title: "Product Name",
+      validation: (Rule: Rule) => Rule.required(),
+    },
+    {
+      name: "price",
+      type: "number",
+      title: "Price",
+      validation: (Rule: Rule) => Rule.required().min(0),
+    },
+    {
+      name: "category",
+      type: "reference",
+      title: "Category",
+      to: [{ type: "category" }],
+    },
+    {
+      name: "isTrendingProduct",
+      type: "boolean",
+      title: "Trending Product",
+    },
+    {
+      name: "isDiscountProduct",
+      type: "boolean",
+      title: "Discount Product",
+    },
+    {
+      name: "top",
+      type: "boolean",
+      title: "Featured Product",
+    },
+    {
+      name: "image",
+      type: "image",
+      title: "Product Image",
+      options: { hotspot: true },
+    },
+  ],
+};
+
+export default productSchema;

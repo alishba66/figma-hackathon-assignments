@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/router";
 import { client } from "@/sanity/lib/client";
 import { allProducts } from "@/sanity/lib/queries";
@@ -26,23 +26,22 @@ const SearchPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const router = useRouter();
-  const { q } = router.query; // Extract query from the URL
+  const { q } = router.query; // Extract query from URL
 
-  // Helper function to get query string safely
-  const getQuery = () => {
-    if (Array.isArray(q)) {
-      return q[0]; // Get the first element if it's an array
-    }
-    return q as string; // Cast to string if it's already a string
-  };
+  // Memoized function to safely get query
+  const queryString = useMemo(() => {
+    if (!q) return "";
+    return Array.isArray(q) ? q[0] : q;
+  }, [q]);
 
   useEffect(() => {
     async function fetchProducts() {
       try {
         const fetchedProducts: Product[] = await client.fetch(allProducts);
         setProducts(fetchedProducts);
+
         // If no search query, show all products
-        if (!q || getQuery().trim() === "") {
+        if (!queryString.trim()) {
           setFilteredProducts(fetchedProducts);
         }
       } catch (error) {
@@ -51,18 +50,17 @@ const SearchPage = () => {
     }
 
     fetchProducts();
-  }, [q]); // Re-fetch products if the query changes
+  }, [queryString]); // ✅ Using memoized queryString
 
   // Filter products by search query
   useEffect(() => {
-    const query = getQuery(); // Get the search query safely
-    if (query && query.trim()) {
+    if (queryString.trim()) {
       const filtered = products.filter((product) =>
-        product.name.toLowerCase().includes(query.toLowerCase()) // Case-insensitive search
+        product.name.toLowerCase().includes(queryString.toLowerCase()) // Case-insensitive search
       );
       setFilteredProducts(filtered);
     }
-  }, [q, products]);
+  }, [queryString, products]); // ✅ Using memoized queryString
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
@@ -72,11 +70,7 @@ const SearchPage = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
-            <Link
-              href={`/s-work/${product.slug.current}`}
-              key={product._id}
-              passHref
-            >
+            <Link href={`/s-work/${product.slug.current}`} key={product._id}>
               <div className="border rounded-lg shadow-md p-5 hover:shadow-xl transition duration-300 bg-white cursor-pointer transform hover:scale-105">
                 {product.image?.asset && (
                   <div className="w-full h-52 overflow-hidden rounded-md">
@@ -101,7 +95,9 @@ const SearchPage = () => {
             </Link>
           ))
         ) : (
-          <p className="col-span-full text-center text-gray-500">No products found.</p>
+          <p className="col-span-full text-center text-gray-500">
+            No products found.
+          </p>
         )}
       </div>
     </div>
@@ -109,3 +105,4 @@ const SearchPage = () => {
 };
 
 export default SearchPage;
+
