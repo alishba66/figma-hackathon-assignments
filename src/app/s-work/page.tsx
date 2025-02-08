@@ -43,7 +43,7 @@ const Furniture = () => {
     e.preventDefault();
 
     // Get existing cart from local storage or initialize an empty array
-    let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
 
     // Add new product to cart
     cart.push(product);
@@ -108,3 +108,4 @@ const Furniture = () => {
 };
 
 export default Furniture;
+
